@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
+using BBQReserverBot.Controllers;
 using BBQReserverBot.Dialogues;
 using BBQReserverBot.Model;
 using Microsoft.AspNetCore;
@@ -26,7 +27,8 @@ namespace BBQReserverBot
         private static TelegramBotClient Bot;
         public static void Main(string[] args)
         {
-            Bot = new TelegramBotClient("917170897:AAFi3ir6fg5rnk07puxElwAOb2lVMJ2Xd0k");
+            DatabaseController.CreateDatabase();
+            Bot = new TelegramBotClient("1041560156:AAHa75a3ywVBanzZhnhkTVH3n475aGKX6mM");
             var me = Bot.GetMeAsync().Result;
             Console.Title = me.Username;
 
@@ -36,11 +38,12 @@ namespace BBQReserverBot
             Bot.OnInlineQuery += BotOnInlineQueryReceived;
             Bot.OnInlineResultChosen += BotOnChosenInlineResultReceived;
             Bot.OnReceiveError += BotOnReceiveError;
+            DatabaseController.CreateDatabase();
 
             Bot.StartReceiving(Array.Empty<UpdateType>());
             Console.WriteLine($"Start listening for @{me.Username}");
             while (true) { Thread.Sleep(100); }
-            Bot.StopReceiving();
+            //Bot.StopReceiving();
             // CreateWebHostBuilder(args).Build().Run();
         }
 
@@ -136,86 +139,4 @@ namespace BBQReserverBot
                 receiveErrorEventArgs.ApiRequestException.Message);
         }
     }
-
-
-    //public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-    //WebHost.CreateDefaultBuilder(args)
-    //  .UseStartup<Startup>();
-
-    /*
-var message = messageEventArgs.Message;
-
-if (message == null || message.Type != MessageType.Text) return;
-
-switch (message.Text.Split(' ').First())
-{
-    // send inline keyboard
-    case "/inline":
-        await Bot.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
-
-        await Task.Delay(500); // simulate longer running task
-
-        var inlineKeyboard = new InlineKeyboardMarkup(new[]
-        {
-            new [] // first row
-            {
-                InlineKeyboardButton.WithCallbackData("1.1"),
-                InlineKeyboardButton.WithCallbackData("1.2"),
-            },
-            new [] // second row
-            {
-                InlineKeyboardButton.WithCallbackData("2.1"),
-                InlineKeyboardButton.WithCallbackData("2.2"),
-            }
-        });
-
-        await Bot.SendTextMessageAsync(
-            message.Chat.Id,
-            "Choose",
-            replyMarkup: inlineKeyboard);
-        break;
-
-    // send custom keyboard
-    case "/keyboard":
-        ReplyKeyboardMarkup ReplyKeyboard = new[]
-        {
-            new[] { "1.1", "1.2" },
-            new[] { "2.1", "2.2" },
-        };
-
-        await Bot.SendTextMessageAsync(
-            message.Chat.Id,
-            "Choose",
-            replyMarkup: ReplyKeyboard);
-        break;
-
-    // request location or contact
-    case "/request":
-        var RequestReplyKeyboard = new ReplyKeyboardMarkup(new[]
-        {
-            KeyboardButton.WithRequestLocation("Location"),
-            KeyboardButton.WithRequestContact("Contact"),
-        });
-
-        await Bot.SendTextMessageAsync(
-            message.Chat.Id,
-            "Who or Where are you?",
-            replyMarkup: RequestReplyKeyboard);
-        break;
-
-    default:
-        const string usage = @"
-Usage:
-/inline   - send inline keyboard
-/keyboard - send custom keyboard
-/photo    - send a photo
-/request  - request location or contact";
-
-        await Bot.SendTextMessageAsync(
-            message.Chat.Id,
-            usage,
-            replyMarkup: new ReplyKeyboardRemove());
-        break;
-}*/
-
 }

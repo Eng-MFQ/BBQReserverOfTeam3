@@ -13,7 +13,10 @@ namespace BBQReserverBot.Dialogues
     /// </summary>
     public class MainMenuDialogue : AbstractDialogue
     {
-        public MainMenuDialogue(Func<string, IReplyMarkup, Task<bool>> sendMessege) : base(sendMessege) { }
+        public MainMenuDialogue(Func<string, IReplyMarkup, Task<bool>> sendMessege) : base(sendMessege)
+        {
+        }
+
         private static string _menueMessage = "What do you like to do?";
 
         /// <summary>
@@ -21,51 +24,57 @@ namespace BBQReserverBot.Dialogues
         /// </summary>
         class MyScheduleDialogue2 : AbstractDialogue
         {
-            public MyScheduleDialogue2(Func<string, IReplyMarkup, Task<bool>> onMessage) : base(onMessage) { }
-            public async override Task<AbstractDialogue> OnMessage(MessageEventArgs args)
+            public MyScheduleDialogue2(Func<string, IReplyMarkup, Task<bool>> onMessage) : base(onMessage)
             {
+            }
 
-                var records = from record in Schedule.Records where record.User.Id == args.Message.From.Id select record;
+            public override async Task<AbstractDialogue> OnMessage(MessageEventArgs args)
+            {
+                var records = from record in RecordModel.GetAllRecords()
+                    where record.User.Id == args.Message.From.Id
+                    select record;
                 await _sendMessege("You have the following reservations:",
-                             (ReplyKeyboardMarkup)
-                             records
-                             .Select(x => new []{x.FromTime.ToString("dd MMMM, hh:mm") + "—" + x.ToTime.Hour + ":00"})
-                             .ToArray());
+                    (ReplyKeyboardMarkup)
+                    records
+                        .Select(x => new[] {x.FromTime.ToString("dd MMMM, HH:mm") + "—" + x.ToTime.Hour + ":00"})
+                        .ToArray());
 
                 var md = new MainMenuDialogue(_sendMessege);
                 return md;
             }
         }
 
-        public async override Task<AbstractDialogue> OnMessage(MessageEventArgs args)
+        public override async Task<AbstractDialogue> OnMessage(MessageEventArgs args)
         {
             var msgText = args.Message.Text;
             switch (msgText)
             {
                 case "My schedule":
-                    {
-                        var dialogue = new MyScheduleDialogue2(_sendMessege);
-                        return await dialogue.OnMessage(args);
-                    }
-                    break;
+                {
+                    var dialogue = new MyScheduleDialogue2(_sendMessege);
+                    return await dialogue.OnMessage(args);
+                }
                 case "Create a new reservation":
+                {
+                    var dialogue = new CreateRecordDialogue(_sendMessege);
+                    return await dialogue.OnMessage(args);
+                }
+                case "Update or Remove an existing reservation":
+                {
+                    var dialogue = new DeleteUpdateRecordDialogue(_sendMessege);
+                    return await dialogue.OnMessage(args);
+                }
+                default:
+                {
+                    ReplyKeyboardMarkup markup = new[]
                     {
-                        var dialogue = new CreateRecordDialogue(_sendMessege);
-                        return await dialogue.OnMessage(args);
-                    }
-                    break;
-                default :
-                    {
-                        ReplyKeyboardMarkup markup = new[]
-                        {
-                            "Create a new reservation",
-                            //"Update or Remove an existing reservation",
-                            "My schedule"
-                        };
-                        await _sendMessege(_menueMessage, markup);
-                        return this;
-                    }
-                    break;
+                        "Create a new reservation",
+                        "Update or Remove an existing reservation",
+                        "My schedule"
+                    };
+                    await _sendMessege(_menueMessage, markup);
+                    return this;
+                }
             }
         }
     }

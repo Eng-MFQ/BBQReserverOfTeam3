@@ -1,1 +1,27 @@
-Goodluck 
+** Prerequsites for running the BBQReserver software:
+- Microsoft DotNet Core SDK, Version 2.2
+
+You can get this software here:
+- Mac: https://dotnet.microsoft.com/download/thank-you/dotnet-sdk-2.2.402-macos-x64-installer
+- Ubuntu 19.04: https://dotnet.microsoft.com/download/linux-package-manager/ubuntu19-04/sdk-2.2.402
+- Other systems: https://dotnet.microsoft.com/download/dotnet-core/2.2
+
+Make sure to have version 2.2 installed, the bot might not work on other versions (and does definitely not on 3.0).
+
+** Run the bot
+Navigate to BBQReserverBot subfolder and run the following code:
+
+dotnet build
+
+change to BBQReserverBot folder one level deeper
+
+dotnet run
+
+** Run the tests
+
+dotnet test
+
+** Information
+After starting the software, you can reach the bot under the following name/url:
+@BBQTesterBot
+https://t.me/BBQTesterBot

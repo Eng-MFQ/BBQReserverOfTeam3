@@ -1,2 +1,7 @@
 
 BBQReserverBot/.vs/BBQReserverBot/v16/Server/sqlite3/db.lock
+BBQReserverBot/.idea/
+BBQReserverBot/BBQReserverBot/obj/
+BBQReserverBot/BBQReserverBot/bin/
+BBQReserverBot/BBQTests/obj/
+BBQReserverBot/BBQTests/bin/

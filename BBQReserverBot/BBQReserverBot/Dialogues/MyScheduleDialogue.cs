@@ -12,7 +12,7 @@ namespace BBQReserverBot.Dialogues
     public class MyScheduleDialogue:AbstractDialogue
     {
         public MyScheduleDialogue(Func<string, IReplyMarkup, Task<bool>> onMessage) : base(onMessage) { }
-        public async override Task<AbstractDialogue> OnMessage(MessageEventArgs args)
+        public override Task<AbstractDialogue> OnMessage(MessageEventArgs args)
         {
             switch(args.Message.Text)
             {
@@ -31,7 +31,7 @@ namespace BBQReserverBot.Dialogues
         private string createSchedule(DateTime start, DateTime end)
         {
             var result = new StringBuilder();
-            var recordsByDay = (from record in Schedule.Records where record.FromTime < end && record.ToTime > start select record).GroupBy((record)=>record.FromTime);
+            var recordsByDay = (from record in RecordModel.GetAllRecords() where record.FromTime < end && record.ToTime > start select record).GroupBy((record)=>record.FromTime);
             for(DateTime i = start; i != end; i.AddDays(1))
             {
                 string DaySchedule = i.ToString("DDDD dd: ");
