@@ -44,9 +44,10 @@ namespace BBQReserverBot.Model
             return true;
         }
 
-        public static bool DeleteRecord(Record record)
+        public static bool DeleteRecord(Record record, int requestingUserId)
         {
             if (!DatabaseController.RecordExists(record)) return false;
+            if (record.User.Id != requestingUserId) return false;
             var command = "delete from records where id = " + record.Id;
             DatabaseController.ExecuteCommand(command);
             return true;
@@ -62,7 +63,7 @@ namespace BBQReserverBot.Model
                 var record = CreateRecord(user, day, month, newStart, newEnd);
                 if (CheckForTimeIntersectionsExcept(record, oldRecord))
                     throw new ArgumentException("Change not possible, overlapping");
-                DeleteRecord(oldRecord);
+                DeleteRecord(oldRecord, user.Id);
                 WriteRecord(record);
                 return true;
             }

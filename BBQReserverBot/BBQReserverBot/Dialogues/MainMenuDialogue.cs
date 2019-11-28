@@ -13,6 +13,16 @@ namespace BBQReserverBot.Dialogues
     /// </summary>
     public class MainMenuDialogue : AbstractDialogue
     {
+
+        public static ReplyKeyboardMarkup getMainMenuKeyboard()
+        {
+            return new[]
+            {
+                "Create a new reservation",
+                "Update or Remove an existing reservation",
+                "My schedule"
+            };
+        }
         public MainMenuDialogue(Func<string, IReplyMarkup, Task<bool>> sendMessege) : base(sendMessege)
         {
         }
@@ -66,13 +76,7 @@ namespace BBQReserverBot.Dialogues
                 }
                 default:
                 {
-                    ReplyKeyboardMarkup markup = new[]
-                    {
-                        "Create a new reservation",
-                        "Update or Remove an existing reservation",
-                        "My schedule"
-                    };
-                    await _sendMessege(_menueMessage, markup);
+                    await _sendMessege(_menueMessage, getMainMenuKeyboard());
                     return this;
                 }
             }

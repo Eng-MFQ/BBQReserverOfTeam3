@@ -33,7 +33,8 @@ namespace BBQReserverBot.Dialogues
             {
                 case 1:
                     AskForRecord(userId);
-                    _state++;
+                    if (_state != 99)
+                        _state++;
                     break;
                 case 2:
                     _record = RecordModel.FindRecordByUserInputString(text);
@@ -42,13 +43,19 @@ namespace BBQReserverBot.Dialogues
                         AskForRecord(userId);
                         break;
                     }
+                    else if (_record.User.Id != userId)
+                    {
+                        _state = 99;
+                        await _sendMessege("Invalid Record, It is another user reservation", MainMenuDialogue.getMainMenuKeyboard());
+                        break;
+                    }
                     AskForOption();
                     _state++;
                     break;
                 case 3:
                     _state++;
-                    if (Operate(text))
-                        await _sendMessege("Deletion successful", new ReplyKeyboardRemove());
+                    if (Operate(text, userId))
+                        await _sendMessege("Deletion successful", MainMenuDialogue.getMainMenuKeyboard());
                     break;
                 case 4:
                     ProcessTime(args.Message.Text, true);
@@ -58,7 +65,10 @@ namespace BBQReserverBot.Dialogues
                 case 5:
                     ProcessTime(args.Message.Text, false);
                     if (RecordModel.UpdateRecord(_record, _record.User, _updateStart, _updateStop))
-                        await _sendMessege("Update successful", new ReplyKeyboardRemove());
+                        await _sendMessege("Update successful", MainMenuDialogue.getMainMenuKeyboard());
+                    else
+                        await _sendMessege("Change not possible, time is overlapping with another reservation",
+                            MainMenuDialogue.getMainMenuKeyboard());
                     _state = 99;
                     break;
                 case 99:
@@ -75,11 +85,22 @@ namespace BBQReserverBot.Dialogues
         internal async void AskForRecord(int userId)
         {
             var records = from record in RecordModel.GetAllRecords() where record.User.Id == userId select record;
-            await _sendMessege("Select one of your reservations to update or delete:",
-                (ReplyKeyboardMarkup)
-                records
-                    .Select(x => new []{x.FromTime.ToString("dd MMMM, HH:mm") + "—" + x.ToTime.Hour + ":00"})
-                    .ToArray());
+
+            if (records.Count() < 1)
+            {
+                _state = 99;
+                var _menueMessage = "No record found";
+
+                await _sendMessege(_menueMessage, MainMenuDialogue.getMainMenuKeyboard());
+            }
+            else
+            {
+                await _sendMessege("Select one of your reservations to update or delete:",
+                    (ReplyKeyboardMarkup)
+                    records
+                        .Select(x => new[] {x.FromTime.ToString("dd MMMM, HH:mm") + "—" + x.ToTime.Hour + ":00"})
+                        .ToArray());
+            }
         }
 
         private async void AskForOption()
@@ -92,11 +113,11 @@ namespace BBQReserverBot.Dialogues
             await _sendMessege("Do you want to update or to delete your entry?", markup);
         }
 
-        private bool Operate(string text)
+        private bool Operate(string text, int userID)
         {
             if (text.Equals("Delete"))
             {
-                RecordModel.DeleteRecord(_record);
+                RecordModel.DeleteRecord(_record, userID);
                 _state = 99;
                 return true;
             }

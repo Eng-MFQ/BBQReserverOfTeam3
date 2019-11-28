@@ -33,7 +33,7 @@ namespace BBQTests
             new object[] {new DateTime(DateTime.Now.Year, 05, 01, 9, 0, 0), 12, true, false},
             new object[] {new DateTime(DateTime.Now.Year, 09, 01, 19, 0, 0), 22, true, false},
             new object[] {new DateTime(DateTime.Now.Year, 08, 01, 21, 0, 0), 22, true, false},
-            new object[] {new DateTime(DateTime.Now.Year, 07, 01, 22, 0, 0), 22, true, false},
+            new object[] {new DateTime(DateTime.Now.Year, 07, 01, 22, 0, 0), 22, false, false},
             new object[] {new DateTime(DateTime.Now.Year, 01, 01, 6, 0, 0), 23, false, true},
             new object[] {new DateTime(DateTime.Now.Year, 01, 02, 18, 0, 0), 23, false, true},
             new object[] {new DateTime(DateTime.Now.Year, 01, 03, 6, 0, 0), 22, false, true},
@@ -299,7 +299,7 @@ namespace BBQTests
                                                        record.ToTime.Hour + ":00");
 
                 //Delete selected record
-                RecordModel.DeleteRecord(selectedRecord);
+                RecordModel.DeleteRecord(selectedRecord, user.Id);
                 Assert.AreEqual(size, RecordModel.GetAllRecords().Count);
             }
             else
@@ -309,7 +309,7 @@ namespace BBQTests
                     RecordModel.FindRecordByUserInputString(record.FromTime.ToString("dd MMMM, HH:mm") + "—" +
                                                        record.ToTime.Hour + ":00");
                 //Delete non-exist record
-                RecordModel.DeleteRecord(selectedRecord);
+                RecordModel.DeleteRecord(selectedRecord, user.Id);
                 Assert.AreEqual(size, RecordModel.GetAllRecords().Count);
             }
         }
